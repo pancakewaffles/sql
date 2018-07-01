@@ -116,3 +116,24 @@ ORDER BY COUNT(w.channel) DESC
 SELECT w.channel, COUNT(w.channel) AS channel_usage FROM web_events w JOIN accounts a ON w.account_id = a.id
 GROUP BY w.channel
 ORDER BY COUNT(w.channel) DESC
+
+-- CASE
+-- Question 1,2
+SELECT a.name, SUM(o.total_amt_usd),
+CASE WHEN SUM(o.total_amt_usd) < 100000 THEN 'low'
+WHEN SUM(o.total_amt_usd) < 200000 THEN 'med'
+ELSE 'high' END AS level
+FROM orders o JOIN accounts a ON a.id = o.account_id
+WHERE o.occurred_at BETWEEN '2016-01-01' AND '2017-01-01'
+GROUP BY 1
+ORDER BY 2 DESC;
+-- Question 3,4
+SELECT s.name,
+COUNT(o.*) total_orders, SUM(o.total_amt_usd),
+CASE WHEN COUNT(o.*) > 200 OR SUM(o.total_amt_usd) > 750000 THEN 'top'
+WHEN COUNT(o.*) > 150 OR SUM(o.total_amt_usd) > 500000 THEN 'med'
+ELSE 'not' END AS top_med_or_not FROM sales_reps s
+JOIN accounts a ON a.sales_rep_id = s.id
+JOIN orders o ON o.account_id = a.id
+GROUP BY 1
+ORDER BY 2 DESC;
